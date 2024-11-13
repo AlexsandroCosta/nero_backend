@@ -7,7 +7,7 @@ SECRET_KEY = 'django-insecure-mx_&b&xw-q)%oucy%87+xi(!k7g_r4oxh9gws6a2dsf^@tkpd@
 
 DEBUG = False
 
-ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = ['localhost', '127.0.0.1', '18.231.220.137']
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -118,6 +118,8 @@ LOGGING = {
 CORS_ALLOW_ALL_ORIGINS = True
 
 CORS_ALLOWED_ORIGINS = [
-    'http://18.231.220.137:',
+    'https://localhost:8000',
+    'https://127.0.0.1:8000',
+    'http://18.231.220.137',
     'http://18.231.220.137:8000'
 ]

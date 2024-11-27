@@ -1,6 +1,7 @@
 from rest_framework import serializers
 from .models import (
-    Usuario
+    Usuario,
+    Postagem
 )
 
 class UsuarioSerializer(serializers.ModelSerializer):
@@ -15,9 +16,31 @@ class UsuarioSerializer(serializers.ModelSerializer):
             'sexo',
             'cpf',
             'grau_ensino',
-            'data_nascimento'
+            'data_nascimento',
+            'foto_perfil'
         ]
 
         extra_kwargs = {
-            'password': {'write_only': True}
+            'password': {'write_only': True},
+        }
+
+class PerfilSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Usuario
+        fields = ['foto_perfil']
+
+class PostagemSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Postagem
+        fields = [
+            'usuario',
+            'titulo',
+            'descricao',
+            'imagem',
+            'geolocalizacao',
+            'natureza'
+        ]
+
+        extra_kwargs = {
+            'usuario': {'write_only': True}
         }

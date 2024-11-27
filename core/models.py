@@ -2,6 +2,8 @@ from django.db import models
 from django.contrib.auth.models import AbstractUser
 from datetime import date
 from django.core.exceptions import ValidationError
+from django.conf import settings
+from django.contrib.gis.db import models as gis_models
 
 class Usuario(AbstractUser):
     GRAU_CHOICES = [
@@ -35,3 +37,34 @@ class Usuario(AbstractUser):
         swappable = "AUTH_USER_MODEL"
         verbose_name = "Usuário"
         verbose_name_plural = "Usuários"
+
+class Postagem(models.Model):
+    NATUREZA_CHOICES = [
+        ('1', 'denúncias'),
+        ('2', 'dúvidas'),
+        ('3', 'elogios'),
+        ('4', 'reclamações'),
+        ('5', 'serviços'),
+        ('6', 'sugestões'),
+        ('7', 'urgências')
+    ]
+
+    STATUS_CHOICES = [
+        ('1', 'pendente'),
+        ('2', 'resolvido'),
+        ('3', 'falso')
+    ]
+
+    usuario = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, blank=True, on_delete=models.CASCADE)
+    titulo = models.CharField(max_length=100)
+    descricao = models.TextField()
+    criacao = models.DateTimeField(auto_now_add=True)
+    imagem = models.ImageField(upload_to='imagens/', null=True, blank=True)
+    votos = models.IntegerField(default=0)
+    geolocalizacao = models.CharField(null=True, blank=True)
+    natureza = models.CharField(choices=NATUREZA_CHOICES)
+    status = models.CharField(choices=STATUS_CHOICES, default='1')
+    anonima = models.BooleanField(default=False)
+
+    def __str__(self):
+        return self.titulo

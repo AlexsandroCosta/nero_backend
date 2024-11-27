@@ -6,6 +6,7 @@ router = routers.DefaultRouter()
 
 router.register(r'usuario', views.CadastroViewSet, basename='cadastro')
 router.register(r'usuario', views.UsuarioViewSet, basename='usuario')
+router.register(r'postagem', views.PostagemViewSet, basename='postagem')
 
 urlpatterns = [
     path('', include(router.urls)),

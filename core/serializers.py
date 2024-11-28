@@ -33,6 +33,7 @@ class PostagemSerializer(serializers.ModelSerializer):
     class Meta:
         model = Postagem
         fields = [
+            'id',
             'usuario',
             'titulo',
             'descricao',
@@ -42,5 +43,5 @@ class PostagemSerializer(serializers.ModelSerializer):
         ]
 
         extra_kwargs = {
-            'usuario': {'write_only': True}
+            'usuario': {'read_only': True}
         }

@@ -26,6 +26,7 @@ schema_view = get_schema_view(
 router = routers.DefaultRouter()
 
 urlpatterns = [
+    path('', include(router.urls)),
     path('admin/', admin.site.urls),
     # path('api-token-auth/', views.obtain_auth_token, name='api_token_auth'),
     path('api/', include('core.urls')),

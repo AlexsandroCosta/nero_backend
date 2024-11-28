@@ -162,16 +162,47 @@ class PostagemViewSet(viewsets.ViewSet):
     def create(self, request):
         postagem_data = request.data
 
-        postagem_data['usuario'] = request.user.id
-        print(postagem_data)
         serializer = PostagemSerializer(data=postagem_data)
 
         if serializer.is_valid():
             serializer.save()
+            serializer.instance.usuario = request.user
+            serializer.instance.save()
 
             return Response({'detail': 'Postagem criada com sucesso!'}, status=201)
         
         return Response(serializer.errors, status=400)
+    
+    @swagger_auto_schema(
+        tags=['Postagem'],
+        operation_description='',
+        manual_parameters=[
+            openapi.Parameter(
+                name='Authorization',
+                in_=openapi.IN_HEADER,
+                type=openapi.TYPE_STRING,
+                description='Token de autenticação no formato `Token <token>`',
+            ),
+        ],
+        request_body=PostagemSerializer,
+        responses={
+            200: 'Postagem atualizada com sucesso!',
+            404: 'Postagem não encontrada.'
+        }
+    )
+    def partial_update(self, request, pk=None):
+        try:
+            postagem = Postagem.objects.get(id=pk)
+            
+            serializer = PostagemSerializer(postagem, data=request.data, partial=True)
+            
+            if serializer.is_valid():
+                serializer.save()
+
+                return Response({'detail': 'Postagem atualizada com sucesso!'}, status=200)
+
+        except Postagem.DoesNotExist:
+            return Response({'detail': 'Postagem não encontrada.'}, status=404)
     
     @swagger_auto_schema(
         tags=['Postagem'],

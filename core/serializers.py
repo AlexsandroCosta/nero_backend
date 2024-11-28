@@ -37,11 +37,16 @@ class PostagemSerializer(serializers.ModelSerializer):
             'usuario',
             'titulo',
             'descricao',
+            'criacao',
             'imagem',
+            'votos',
             'geolocalizacao',
-            'natureza'
+            'natureza',
+            'status'
         ]
 
         extra_kwargs = {
-            'usuario': {'read_only': True}
+            'usuario': {'read_only': True},
+            'votos': {'read_only': True},
+            'status': {'read_only': True}
         }

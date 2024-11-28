@@ -136,6 +136,67 @@ class UsuarioViewSet(viewsets.ViewSet):
 
         return Response('Foto de perfil atualizada com sucesso!', status=200)
     
+class InfosViewSet(viewsets.ViewSet):
+
+    @swagger_auto_schema(
+        tags=['Informações'],
+        operation_description='',
+        responses={
+            200: openapi.Schema(type=openapi.TYPE_ARRAY, items=
+                                openapi.Schema(type=openapi.TYPE_OBJECT, properties={
+                                    '<id>': openapi.Schema(type=openapi.TYPE_STRING)
+                                    }
+                                ))
+        }
+    )
+    @action(detail=False, url_path='grau-ensino')
+    def grau_ensino(self, request):
+        data = {}
+
+        for grau in Usuario.GRAU_CHOICES:
+            data[grau[0]] = grau[1]
+
+        return Response(data, status=200)
+    
+    @swagger_auto_schema(
+        tags=['Informações'],
+        operation_description='',
+        responses={
+            200: openapi.Schema(type=openapi.TYPE_ARRAY, items=
+                                openapi.Schema(type=openapi.TYPE_OBJECT, properties={
+                                    '<id>': openapi.Schema(type=openapi.TYPE_STRING)
+                                    }
+                                ))
+        }
+    )
+    @action(detail=False, url_path='natureza-postagem')
+    def natureza_postagem(self, request):
+        data = {}
+
+        for natureza in Postagem.NATUREZA_CHOICES:
+            data[natureza[0]] = natureza[1]
+
+        return Response(data, status=200)
+    
+    @swagger_auto_schema(
+        tags=['Informações'],
+        operation_description='',
+        responses={
+            200: openapi.Schema(type=openapi.TYPE_ARRAY, items=
+                                openapi.Schema(type=openapi.TYPE_OBJECT, properties={
+                                    '<id>': openapi.Schema(type=openapi.TYPE_STRING)
+                                    }
+                                ))
+        }
+    )
+    @action(detail=False, url_path='status-postagem')
+    def status_postagem(self, request):
+        data = {}
+
+        for status in Postagem.STATUS_CHOICES:
+            data[status[0]] = status[1]
+
+        return Response(data, status=200) 
 
 class PostagemViewSet(viewsets.ViewSet):
 
@@ -203,7 +264,34 @@ class PostagemViewSet(viewsets.ViewSet):
 
         except Postagem.DoesNotExist:
             return Response({'detail': 'Postagem não encontrada.'}, status=404)
-    
+        
+    @swagger_auto_schema(
+        tags=['Postagem'],
+        operation_description='',
+        manual_parameters=[
+            openapi.Parameter(
+                name='Authorization',
+                in_=openapi.IN_HEADER,
+                type=openapi.TYPE_STRING,
+                description='Token de autenticação no formato `Token <token>`',
+            ),
+        ],
+        responses={
+            204: 'Postagem deletada com sucesso!',
+            404: 'Postagem não encontrada.'
+        }
+    )
+    def destroy(self, request, pk=None):
+        try:
+            postagem = Postagem.objects.get(id=pk, usuario=request.user)
+
+            postagem.delete()
+
+            return Response({'detail': 'Postagem deletada com sucesso!'}, status=204)
+
+        except Postagem.DoesNotExist:
+            return Response({'detail': 'Postagem não encontrada.'}, status=404)
+
     @swagger_auto_schema(
         tags=['Postagem'],
         operation_description='',

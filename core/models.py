@@ -40,13 +40,12 @@ class Usuario(AbstractUser):
 
 class Postagem(models.Model):
     NATUREZA_CHOICES = [
-        ('1', 'denúncias'),
-        ('2', 'dúvidas'),
-        ('3', 'elogios'),
-        ('4', 'reclamações'),
-        ('5', 'serviços'),
-        ('6', 'sugestões'),
-        ('7', 'urgências')
+        ('1', 'infraestrutura'),
+        ('2', 'iluminação'),
+        ('3', 'coleta de lixo'),
+        ('4', 'saneamento'),
+        ('5', 'trânsito'),
+        ('6', 'outro')
     ]
 
     STATUS_CHOICES = [

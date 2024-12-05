@@ -6,12 +6,14 @@ from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
 from .models import (
     Usuario,
-    Postagem
+    Postagem,
+    Comentario
 )
 from .serializers import (
     UsuarioSerializer,
     PerfilSerializer,
-    PostagemSerializer
+    PostagemSerializer,
+    ComentarioSerializer
 )
 from rest_framework.authtoken.views import ObtainAuthToken
 from rest_framework.authtoken.models import Token
@@ -309,6 +311,124 @@ class PostagemViewSet(viewsets.ViewSet):
     )
     def list(self, request):
         postagens = Postagem.objects.filter(usuario=request.user)
+
+        serializer = PostagemSerializer(postagens, many=True)
+
+        return Response(serializer.data, status=200)
+    
+    @swagger_auto_schema(
+        tags=['Postagem'],
+        operation_description='',
+        manual_parameters=[
+            openapi.Parameter(
+                name='Authorization',
+                in_=openapi.IN_HEADER,
+                type=openapi.TYPE_STRING,
+                description='Token de autenticação no formato `Token <token>`',
+            ),
+        ],
+        request_body=ComentarioSerializer,
+        responses={
+            201: 'Comentário feito.'
+        }
+    )
+    @action(detail=False, methods=['post'], url_path='comentario')
+    def fazer_comentario(self, request):
+        for campo in ['texto', 'postagem']:
+            if not campo in request.data:
+                return Response({'detail': f'O campo "{campo}" é obrigatório.'}, status=400)
+        
+        try:
+            postagem = Postagem.objects.get(id=request.data['postagem'])
+
+            Comentario.objects.create(
+                usuario = request.user,
+                postagem = postagem,
+                texto = request.data['texto']
+            )
+
+            return Response({'detail': 'Comentário feito.'}, status=201)
+
+        except Postagem.DoesNotExist:
+            return Response({'detail': 'Postagem não encontrada.'}, status=404)
+    
+    @swagger_auto_schema(
+        tags=['Postagem'],
+        operation_description='',
+        manual_parameters=[
+            openapi.Parameter(
+                name='Authorization',
+                in_=openapi.IN_HEADER,
+                type=openapi.TYPE_STRING,
+                description='Token de autenticação no formato `Token <token>`',
+            ),
+        ],
+        responses={
+            204: 'Comentário deletado.'
+        }
+    )
+    @action(detail=False, methods=['delete'], url_path='comentario/(?P<id_comentario>[^/.]+)?')
+    def deletar_comentario(self, request, id_comentario=None):
+        try:
+            comentario = Comentario.objects.get(id=id_comentario)
+
+            comentario.delete()
+
+            return Response({'detail': 'Comentário deletado.'}, status=204)
+
+        except Comentario.DoesNotExist:
+            return Response({'detail': 'Comentário não encontrado.'}, status=404)
+        
+    @swagger_auto_schema(
+        tags=['Postagem'],
+        operation_description='',
+        manual_parameters=[
+            openapi.Parameter(
+                name='Authorization',
+                in_=openapi.IN_HEADER,
+                type=openapi.TYPE_STRING,
+                description='Token de autenticação no formato `Token <token>`',
+            ),
+        ],
+        responses={
+            200: ComentarioSerializer(many=True)
+        }
+    )
+    @action(detail=False, url_path='(?P<id_postagem>[^/.]+)?/comentarios')
+    def listar_comentarios(self, request, id_postagem=None):
+        try:
+            postagem = Postagem.objects.get(id=id_postagem)
+
+            comentarios = Comentario.objects.filter(postagem=postagem)
+
+            serializer = ComentarioSerializer(comentarios, many=True)
+
+            return Response(serializer.data, status=200)
+
+        except Postagem.DoesNotExist:
+            return Response({'detail': 'Postagem não encontrada.'}, status=404)
+        
+    
+class FeedViewSet(viewsets.ViewSet):
+
+
+    @swagger_auto_schema(
+        tags=['Feed'],
+        operation_description='',
+        manual_parameters=[
+            openapi.Parameter(
+                name='Authorization',
+                in_=openapi.IN_HEADER,
+                type=openapi.TYPE_STRING,
+                description='Token de autenticação no formato `Token <token>`',
+            ),
+        ],
+        responses={
+            200: PostagemSerializer(many=True)
+        }
+    )
+    def list(self, request):
+        postagens = Postagem.objects.filter(status='1')
 
         serializer = PostagemSerializer(postagens, many=True)
 

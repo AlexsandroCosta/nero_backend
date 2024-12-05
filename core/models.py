@@ -68,3 +68,8 @@ class Postagem(models.Model):
 
     def __str__(self):
         return self.titulo
+    
+class Comentario(models.Model):
+    usuario = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    postagem = models.ForeignKey(Postagem, on_delete=models.CASCADE)
+    texto = models.CharField(max_length=300)

@@ -8,6 +8,7 @@ router.register(r'usuario', views.CadastroViewSet, basename='cadastro')
 router.register(r'usuario', views.UsuarioViewSet, basename='usuario')
 router.register(r'postagem', views.PostagemViewSet, basename='postagem')
 router.register(r'informacoes', views.InfosViewSet, basename='informacoes')
+router.register(r'feed', views.FeedViewSet, basename='feed')
 
 urlpatterns = [
     path('', include(router.urls)),

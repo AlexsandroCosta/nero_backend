@@ -5,9 +5,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 SECRET_KEY = 'django-insecure-mx_&b&xw-q)%oucy%87+xi(!k7g_r4oxh9gws6a2dsf^@tkpd@'
 
-DEBUG = False
+DEBUG = True
 
-ALLOWED_HOSTS = ['localhost', '127.0.0.1', '18.231.220.137']
+ALLOWED_HOSTS = ['localhost', '127.0.0.1', '18.228.8.220']
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -120,6 +120,6 @@ CORS_ALLOW_ALL_ORIGINS = True
 CORS_ALLOWED_ORIGINS = [
     'https://localhost:8000',
     'https://127.0.0.1:8000',
-    'http://18.231.220.137',
-    'http://18.231.220.137:8000'
+    'http://18.228.8.220',
+    'http://18.228.8.220:8000'
 ]

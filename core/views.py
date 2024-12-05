@@ -95,14 +95,10 @@ class UsuarioViewSet(viewsets.ViewSet):
         try:
             user = Usuario.objects.get(id=pk)
 
-            if request.user.is_superuser or request.user.id == int(pk):
+            serializer = UsuarioSerializer(user)
 
-                serializer = UsuarioSerializer(user)
-
-                return Response(serializer.data, status=200)
+            return Response(serializer.data, status=200)
             
-            return Response({'detail': 'Você não tem permissão para executar esta ação.'}, status=400)
-
         except Usuario.DoesNotExist:
             return Response({'detail': 'Usuário não encontrado.'}, status=404)
     

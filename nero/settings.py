@@ -126,5 +126,6 @@ CORS_ALLOWED_ORIGINS = [
     'http://18.228.8.220:8000',
     'https://18.228.170.126',
     'https://18.228.170.126:8000',
-    'http://api.nero.lat/'
+    'http://api.nero.lat',
+    'https://api.nero.lat'
 ]

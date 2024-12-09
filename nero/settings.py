@@ -7,7 +7,7 @@ SECRET_KEY = 'django-insecure-mx_&b&xw-q)%oucy%87+xi(!k7g_r4oxh9gws6a2dsf^@tkpd@
 
 DEBUG = True
 
-ALLOWED_HOSTS = ['api.nero.lat','localhost', '127.0.0.1', '18.228.8.220']
+ALLOWED_HOSTS = ['api.nero.lat','localhost', '127.0.0.1', '18.228.8.220', '18.228.170.126']
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -124,5 +124,7 @@ CORS_ALLOWED_ORIGINS = [
     'https://127.0.0.1:8000',
     'http://18.228.8.220',
     'http://18.228.8.220:8000',
+    'https://18.228.170.126',
+    'https://18.228.170.126:8000',
     'http://api.nero.lat/'
 ]

@@ -7,7 +7,7 @@ SECRET_KEY = 'django-insecure-mx_&b&xw-q)%oucy%87+xi(!k7g_r4oxh9gws6a2dsf^@tkpd@
 
 DEBUG = False
 
-ALLOWED_HOSTS = ['api.nero.lat','localhost', '127.0.0.1']
+ALLOWED_HOSTS = ['api.nero.lat','localhost', '127.0.0.1', '18.228.170.126']
 
 INSTALLED_APPS = [
     'django.contrib.admin',

@@ -59,7 +59,7 @@ class Postagem(models.Model):
     descricao = models.TextField()
     criacao = models.DateTimeField(auto_now_add=True)
     imagem = models.ImageField(upload_to='imagens/', null=True, blank=True)
-    votos = models.IntegerField(default=0)
+    votos = models.FloatField(default=0)
     geolocalizacao = models.CharField(max_length=150, null=True, blank=True)
     natureza = models.CharField(max_length=1, choices=NATUREZA_CHOICES)
     status = models.CharField(max_length=1, choices=STATUS_CHOICES, default='1')
@@ -72,3 +72,8 @@ class Comentario(models.Model):
     usuario = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     postagem = models.ForeignKey(Postagem, on_delete=models.CASCADE)
     texto = models.CharField(max_length=300)
+
+class Avaliacao(models.Model):
+    usuario = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    postagem = models.ForeignKey(Postagem, on_delete=models.CASCADE)
+    avaliacao = models.IntegerField()

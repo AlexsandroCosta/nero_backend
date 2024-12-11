@@ -2,7 +2,8 @@ from rest_framework import serializers
 from .models import (
     Usuario,
     Postagem,
-    Comentario
+    Comentario,
+    Avaliacao
 )
 
 class UsuarioSerializer(serializers.ModelSerializer):
@@ -63,4 +64,18 @@ class ComentarioSerializer(serializers.ModelSerializer):
 
         extra_kwargs = {
             'usuario': {'read_only': True}
+        }
+
+class AvaliacaoSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Avaliacao
+        fields = [
+            'id',
+            'usuario',
+            'postagem',
+            'avaliacao'
+        ]
+        extra_kwargs = {
+            'usuario': {'read_only': True},
+            'postagem': {'read_only': True}
         }

@@ -7,16 +7,19 @@ from drf_yasg import openapi
 from .models import (
     Usuario,
     Postagem,
-    Comentario
+    Comentario,
+    Avaliacao
 )
 from .serializers import (
     UsuarioSerializer,
     PerfilSerializer,
     PostagemSerializer,
-    ComentarioSerializer
+    ComentarioSerializer,
+    AvaliacaoSerializer
 )
 from rest_framework.authtoken.views import ObtainAuthToken
 from rest_framework.authtoken.models import Token
+from django.db.models import Avg
 
 class ModAuthToken(ObtainAuthToken):
 
@@ -401,6 +404,59 @@ class PostagemViewSet(viewsets.ViewSet):
 
             return Response(serializer.data, status=200)
 
+        except Postagem.DoesNotExist:
+            return Response({'detail': 'Postagem não encontrada.'}, status=404)
+
+    @swagger_auto_schema(
+        tags=['Postagem'],
+        operation_description='',
+        manual_parameters=[
+            openapi.Parameter(
+                name='Authorization',
+                in_=openapi.IN_HEADER,
+                type=openapi.TYPE_STRING,
+                description='Token de autenticação no formato `Token <token>`',
+            ),
+        ],
+        request_body=AvaliacaoSerializer,
+        responses={
+            201: 'Avaliação realizada com sucesso!'
+        }
+    )
+    @action(detail=False, methods=['post'], url_path='(?P<id_postagem>[^/.]+)?/avaliar')
+    def avaliar_postagem(self, request, id_postagem=None):
+        try:
+            postagem = Postagem.objects.get(id=id_postagem)
+
+            if postagem.usuario == request.user:
+                return Response({'detail': 'Não é possível executar esta ação.'}, status=402)
+
+            avaliacao = request.data.get('avaliacao')
+
+            if int(avaliacao) < 0:
+                avaliacao = 0
+            elif int(avaliacao) > 5:
+                avaliacao = 5
+
+            obj = Avaliacao.objects.filter(usuario=request.user, postagem=postagem)
+
+            if obj.exists():
+                obj.first().avaliacao = avaliacao
+                obj.first().save()
+            else:
+                Avaliacao.objects.create(
+                    usuario = request.user,
+                    postagem = postagem,
+                    avaliacao = avaliacao
+                )
+
+            media = Avaliacao.objects.filter(postagem=postagem).aggregate(media=Avg('avaliacao'))
+            
+            postagem.votos = media['media']
+            postagem.save()
+
+            return Response({'detail': 'Avaliação realizada com sucesso!'}, status=201)
+        
         except Postagem.DoesNotExist:
             return Response({'detail': 'Postagem não encontrada.'}, status=404)
         

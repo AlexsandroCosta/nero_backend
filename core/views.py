@@ -64,7 +64,10 @@ class CadastroViewSet(viewsets.ViewSet):
         }
     )
     def create(self, request):
-        serializer = UsuarioSerializer(data=request.data)
+        user_data = request.data
+        user_data['username'] = user_data['username'].lower()
+
+        serializer = UsuarioSerializer(data=user_data)
 
         if serializer.is_valid():
             serializer.save()

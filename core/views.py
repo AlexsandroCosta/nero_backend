@@ -42,6 +42,9 @@ class ModAuthToken(ObtainAuthToken):
         }
     )
     def post(self, request, *args, **kwargs):
+        user_data = request.data
+        user_data['username'] = user_data['username'].lower()
+              
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         user = serializer.validated_data['user']

@@ -110,7 +110,47 @@ class UsuarioViewSet(viewsets.ViewSet):
             
         except Usuario.DoesNotExist:
             return Response({'detail': 'Usuário não encontrado.'}, status=404)
-    
+            
+    @swagger_auto_schema(
+        tags=['Usuários'],
+        operation_description='',
+        manual_parameters=[
+            openapi.Parameter(
+                name='Authorization',
+                in_=openapi.IN_HEADER,
+                type=openapi.TYPE_STRING,
+                description='Token de autenticação no formato `Token <token>`',
+            ),
+            openapi.Parameter(name='first_name', in_=openapi.IN_FORM, type=openapi.TYPE_STRING),
+            openapi.Parameter(name='email', in_=openapi.IN_FORM, type=openapi.TYPE_STRING, format='email'),
+            openapi.Parameter(name='cpf', in_=openapi.IN_FORM, type=openapi.TYPE_STRING),
+            openapi.Parameter(name='data_nascimento', in_=openapi.IN_FORM, type=openapi.TYPE_STRING, format='date'),
+            openapi.Parameter(name='sexo', in_=openapi.IN_FORM, type=openapi.TYPE_STRING),
+            openapi.Parameter(name='grau_ensino', in_=openapi.IN_FORM, type=openapi.TYPE_STRING),
+        ],
+        responses={
+            200: 'Usário atualizado com sucesso!'
+        }
+    )
+    def partial_update(self, request, pk=None):
+        try:
+            usuario = Usuario.objects.get(id=pk)
+
+            if usuario != request.user:
+                return Response({'detail': 'Você não tem permissão para executar esta ação.'}, status=403)
+        
+            serializer = UsuarioSerializer(usuario, request.data, partial=True)
+
+            if serializer.is_valid():
+                serializer.save()
+
+                return Response('Usário atualizado com sucesso!', status=200)
+
+            return Response({'detail': request.data})
+
+        except Usuario.DoesNotExist:
+            return Response({'detail': 'Usuário não encontrado.'}, status=404)
+
     @swagger_auto_schema(
         tags=['Usuários'],
         operation_description='',
@@ -284,7 +324,7 @@ class PostagemViewSet(viewsets.ViewSet):
             ),
         ],
         responses={
-            204: 'Postagem deletada com sucesso!',
+            200: 'Postagem deletada com sucesso!',
             404: 'Postagem não encontrada.'
         }
     )
@@ -294,7 +334,7 @@ class PostagemViewSet(viewsets.ViewSet):
 
             postagem.delete()
 
-            return Response({'detail': 'Postagem deletada com sucesso!'}, status=204)
+            return Response({'detail': 'Postagem deletada com sucesso!'}, status=200)
 
         except Postagem.DoesNotExist:
             return Response({'detail': 'Postagem não encontrada.'}, status=404)
@@ -369,7 +409,7 @@ class PostagemViewSet(viewsets.ViewSet):
             ),
         ],
         responses={
-            204: 'Comentário deletado.'
+            200: 'Comentário deletado.'
         }
     )
     @action(detail=False, methods=['delete'], url_path='comentario/(?P<id_comentario>[^/.]+)?')
@@ -379,7 +419,7 @@ class PostagemViewSet(viewsets.ViewSet):
 
             comentario.delete()
 
-            return Response({'detail': 'Comentário deletado.'}, status=204)
+            return Response({'detail': 'Comentário deletado.'}, status=200)
 
         except Comentario.DoesNotExist:
             return Response({'detail': 'Comentário não encontrado.'}, status=404)

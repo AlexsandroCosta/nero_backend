@@ -24,7 +24,8 @@ class Usuario(AbstractUser):
 
     SEXO_CHOICES = [
         ('m', 'Masculino'),
-        ('f', 'Feminino')
+        ('f', 'Feminino'),
+        ('n', 'Não informado')
     ]
 
     sexo = models.CharField(max_length=1, choices=SEXO_CHOICES, null=True, blank=True)

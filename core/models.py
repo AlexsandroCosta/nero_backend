@@ -3,7 +3,6 @@ from django.contrib.auth.models import AbstractUser
 from datetime import date
 from django.core.exceptions import ValidationError
 from django.conf import settings
-from django.contrib.gis.db import models as gis_models
 
 class Usuario(AbstractUser):
     GRAU_CHOICES = [

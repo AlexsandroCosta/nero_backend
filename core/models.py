@@ -27,11 +27,17 @@ class Usuario(AbstractUser):
         ('n', 'Não informado')
     ]
 
+    TIPO_CHOICES = [
+        ('cidadão', 'Cidadão'),
+        ('ouvidoria', 'Ouvidoria')
+    ]
+
     sexo = models.CharField(max_length=1, choices=SEXO_CHOICES, null=True, blank=True)
     cpf = models.CharField(max_length=11, unique=True, null=True, blank=True)
     grau_ensino = models.CharField(max_length=2, choices=GRAU_CHOICES, null=True, blank=True)
     data_nascimento = models.DateField(null=True, blank=True)
     foto_perfil = models.ImageField(upload_to='perfil/', null=True, blank=True)
+    tipo = models.CharField(max_length=9, choices=TIPO_CHOICES, null=True, blank=True)
 
     class Meta:
         swappable = "AUTH_USER_MODEL"

@@ -5,7 +5,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 SECRET_KEY = 'django-insecure-mx_&b&xw-q)%oucy%87+xi(!k7g_r4oxh9gws6a2dsf^@tkpd@'
 
-DEBUG = True
+DEBUG = False
 
 ALLOWED_HOSTS = ['api.nero.lat','localhost', '127.0.0.1', '18.228.170.126']
 

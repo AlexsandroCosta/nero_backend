@@ -19,11 +19,13 @@ class UsuarioSerializer(serializers.ModelSerializer):
             'cpf',
             'grau_ensino',
             'data_nascimento',
-            'foto_perfil'
+            'foto_perfil',
+            'tipo'
         ]
 
         extra_kwargs = {
             'password': {'write_only': True},
+            'tipo': {'read_only': True}
         }
 
 class PerfilSerializer(serializers.ModelSerializer):

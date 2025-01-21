@@ -76,6 +76,7 @@ class CadastroViewSet(viewsets.ViewSet):
             serializer.save()
 
             serializer.instance.set_password(request.data['password'])
+            serializer.instance.tipo = 'cidadão'
             serializer.instance.save()
 
             return Response({'detail': 'Usuário cadastrado com sucesso!'}, status=201) 

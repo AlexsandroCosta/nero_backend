@@ -8,14 +8,18 @@ from .models import (
     Usuario,
     Postagem,
     Comentario,
-    Avaliacao
+    Avaliacao,
+    Cidade,
+    Bairro
 )
 from .serializers import (
     UsuarioSerializer,
     PerfilSerializer,
     PostagemSerializer,
     ComentarioSerializer,
-    AvaliacaoSerializer
+    AvaliacaoSerializer,
+    CidadeSerializer,
+    BairroSerializer
 )
 from rest_framework.authtoken.views import ObtainAuthToken
 from rest_framework.authtoken.models import Token
@@ -245,6 +249,42 @@ class InfosViewSet(viewsets.ViewSet):
             data[status[0]] = status[1]
 
         return Response(data, status=200) 
+
+    @swagger_auto_schema(
+        tags=['Informações'],
+        operation_description='',
+        responses={
+            200: openapi.Schema(type=openapi.TYPE_ARRAY, items=
+                                openapi.Schema(type=openapi.TYPE_OBJECT, properties={
+                                    'id': openapi.Schema(type=openapi.TYPE_INTEGER),
+                                    'nome': openapi.Schema(type=openapi.TYPE_STRING),
+                                    'pontos': openapi.Schema(type=openapi.TYPE_ARRAY, items=
+                                                             openapi.Schema(type=openapi.TYPE_NUMBER)),
+                                    'bairros': openapi.Schema(type=openapi.TYPE_ARRAY, items=
+                                                             openapi.Schema(type=openapi.TYPE_OBJECT, properties={
+                                                                 'id': openapi.Schema(type=openapi.TYPE_INTEGER),
+                                                                 'nome': openapi.Schema(type=openapi.TYPE_STRING),
+                                                                 'pontos': openapi.Schema(type=openapi.TYPE_ARRAY, items=
+                                                                                          openapi.Schema(type=openapi.TYPE_NUMBER)),
+                                                             }))
+                                }))
+        }
+    )
+    @action(detail=False, url_path='cidades')
+    def cidades(self, request):
+        cidades = Cidade.objects.all()
+
+        cidades_serializer = CidadeSerializer(cidades, many=True)
+
+        for cidade_serializer in cidades_serializer.data:
+            bairros = Bairro.objects.filter(cidade__id=cidade_serializer['id'])
+
+            bairros_serializer = BairroSerializer(bairros, many=True)
+
+            cidade_serializer['bairros'] = bairros_serializer.data
+
+        return Response(cidades_serializer.data, status=200)
+
 
 class PostagemViewSet(viewsets.ViewSet):
 

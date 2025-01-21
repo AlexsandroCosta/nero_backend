@@ -3,7 +3,9 @@ from .models import (
     Usuario,
     Postagem,
     Comentario,
-    Avaliacao
+    Avaliacao,
+    Cidade,
+    Bairro
 )
 
 class UsuarioSerializer(serializers.ModelSerializer):
@@ -81,3 +83,14 @@ class AvaliacaoSerializer(serializers.ModelSerializer):
             'usuario': {'read_only': True},
             'postagem': {'read_only': True}
         }
+
+class CidadeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Cidade
+        fields = '__all__'
+
+class BairroSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Bairro
+        fields = '__all__'
+ 

@@ -83,3 +83,12 @@ class Avaliacao(models.Model):
     usuario = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     postagem = models.ForeignKey(Postagem, on_delete=models.CASCADE)
     avaliacao = models.IntegerField()
+
+class Cidade(models.Model):
+    nome = models.CharField(max_length=250)
+    pontos = models.JSONField(default=list)
+
+class Bairro(models.Model):
+    cidade = models.ForeignKey(Cidade, on_delete=models.CASCADE)
+    nome = models.CharField(max_length=250)
+    pontos = models.JSONField(default=list)

@@ -547,6 +547,51 @@ class PostagemViewSet(viewsets.ViewSet):
         except Postagem.DoesNotExist:
             return Response({'detail': 'Postagem não encontrada.'}, status=404)
         
+    @swagger_auto_schema(
+        tags=['Postagem'],
+        operation_description='',
+        manual_parameters=[
+            openapi.Parameter(
+                name='Authorization',
+                in_=openapi.IN_HEADER,
+                type=openapi.TYPE_STRING,
+                description='Token de autenticação no formato `Token <token>`',
+            ),
+            openapi.Parameter(
+                name='novo_status',
+                in_=openapi.IN_FORM,
+                type=openapi.TYPE_STRING
+            )
+        ],
+        responses={
+            200: 'Status da postagem atualizado com sucesso!',
+            403: 'Você não tem permissão para executar esta ação',
+            404: 'Postagem não encontrada'
+        }
+    )
+    @action(detail=False, methods=['patch'], url_path='(?P<id_postagem>[^/.]+)?/atualizar-status')
+    def atualizar_status_postagem(self, request, id_postagem=None):
+        try:
+            if request.user.tipo == 'cidadão':
+                return Response({'detail': 'Você não tem permissão para executar esta ação'}, status=403)
+            
+            postagem = Postagem.objects.get(id=id_postagem)
+
+            if postagem.status != "1":
+                return Response({'detail': 'Não é possível atualizar o status dessa postagem'}, status=400)
+            
+            status = request.data['novo_status'][0]
+
+            if status not in ['1', '2', '3']:
+                return Response({'detail': '"novo_status" inválido'}, status=400)
+
+            postagem.status = status
+            postagem.save()
+
+            return Response({'detail': 'Status de postagem atualizado com sucesso!'}, status=200)
+
+        except Postagem.DoesNotExist:
+            return Response({'detail': 'Postagem não encontrada'}, status=404)
     
 class FeedViewSet(viewsets.ViewSet):
 

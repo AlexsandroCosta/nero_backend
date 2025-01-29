@@ -1,7 +1,8 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 from datetime import date
-from django.core.exceptions import ValidationError
+from django.core.validators import RegexValidator
+from django.core.validators import MinLengthValidator
 from django.conf import settings
 
 class Usuario(AbstractUser):
@@ -27,11 +28,23 @@ class Usuario(AbstractUser):
         ('n', 'Não informado')
     ]
 
+    TIPO_CHOICES = [
+        ('cidadão', 'Cidadão'),
+        ('ouvidoria', 'Ouvidoria')
+    ]
+
+    cpf_validator = RegexValidator(
+        regex=r'^\d{11}$',
+        message="O CPF deve conter exatamente 11 dígitos numéricos.",
+        code='invalid_cpf'
+    )
+
     sexo = models.CharField(max_length=1, choices=SEXO_CHOICES, null=True, blank=True)
-    cpf = models.CharField(max_length=11, unique=True, null=True, blank=True)
+    cpf = models.CharField(max_length=11, unique=True, null=True, blank=True, validators=[cpf_validator])
     grau_ensino = models.CharField(max_length=2, choices=GRAU_CHOICES, null=True, blank=True)
     data_nascimento = models.DateField(null=True, blank=True)
     foto_perfil = models.ImageField(upload_to='perfil/', null=True, blank=True)
+    tipo = models.CharField(max_length=9, choices=TIPO_CHOICES, null=True, blank=True)
 
     class Meta:
         swappable = "AUTH_USER_MODEL"
@@ -64,6 +77,7 @@ class Postagem(models.Model):
     natureza = models.CharField(max_length=1, choices=NATUREZA_CHOICES)
     status = models.CharField(max_length=1, choices=STATUS_CHOICES, default='1')
     anonima = models.BooleanField(default=False)
+    path_pdf = models.CharField(max_length=250, null=True, blank=True)
 
     def __str__(self):
         return self.titulo
@@ -77,3 +91,12 @@ class Avaliacao(models.Model):
     usuario = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     postagem = models.ForeignKey(Postagem, on_delete=models.CASCADE)
     avaliacao = models.IntegerField()
+
+class Cidade(models.Model):
+    nome = models.CharField(max_length=250)
+    pontos = models.JSONField(default=list)
+
+class Bairro(models.Model):
+    cidade = models.ForeignKey(Cidade, on_delete=models.CASCADE)
+    nome = models.CharField(max_length=250)
+    pontos = models.JSONField(default=list)

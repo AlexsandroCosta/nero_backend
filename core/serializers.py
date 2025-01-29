@@ -31,6 +31,23 @@ class UsuarioSerializer(serializers.ModelSerializer):
             'tipo': {'read_only': True}
         }
 
+    def validate_foto_perfil(self, value):
+        if value:
+            try:
+                img = Image.open(value)
+                img.verify()  # Verifica se o arquivo é uma imagem válida
+                
+                # Lista de formatos permitidos
+                formatos_permitidos = ["JPEG", "JPG", "PNG"]
+                
+                if img.format.upper() not in formatos_permitidos:
+                    raise serializers.ValidationError("Apenas imagens nos formatos JPEG, JPG e PNG são permitidas.")
+
+            except (IOError, SyntaxError):
+                raise serializers.ValidationError("O arquivo enviado não é uma imagem válida.")
+        
+        return value
+
 class PerfilSerializer(serializers.ModelSerializer):
     class Meta:
         model = Usuario

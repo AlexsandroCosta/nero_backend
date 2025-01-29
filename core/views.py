@@ -24,6 +24,10 @@ from .serializers import (
 from rest_framework.authtoken.views import ObtainAuthToken
 from rest_framework.authtoken.models import Token
 from django.db.models import Avg
+from reportlab.lib.pagesizes import letter
+from reportlab.lib.utils import ImageReader
+from reportlab.pdfgen import canvas
+from django.conf import settings
 
 class ModAuthToken(ObtainAuthToken):
 
@@ -596,8 +600,150 @@ class PostagemViewSet(viewsets.ViewSet):
         except Postagem.DoesNotExist:
             return Response({'detail': 'Postagem não encontrada'}, status=404)
 
-    # @action(detail=False, methods=['post'], url_path='(?P<id_postagem>[^/.]+)?/enviar-formulario')
-    # def enviar_formulario(self, request, id_postagem)
+    @action(detail=False, methods=['post'], url_path='(?P<id_postagem>[^/.]+)?/enviar-formulario')
+    def enviar_formulario(self, request, id_postagem=None):
+        try:
+            postagem = Postagem.objects.get(id=id_postagem)
+            url_pdf = f'{settings.MEDIA_ROOT}/formulario-{postagem.titulo[:20]}.pdf'
+
+            c = canvas.Canvas(url_pdf, pagesize=letter)
+            c.setTitle('Meu documento PDF')
+
+            page_width, page_height = letter
+
+            # Definindo a fonte e tamanho
+            helvetica = "Helvetica"
+            helvetica_bold = "Helvetica-Bold"
+
+            c.setFont("Helvetica-Bold", 20)
+
+            titulo = "Formulário para a manifestação"
+            text_width = c.stringWidth(titulo, helvetica_bold, 20)
+            x_position = (page_width - text_width) / 2  # Centralizando horizontalmente
+
+            # Desenhando o texto centralizado
+            c.drawString(x_position, 750, titulo)
+
+            c.setFont(helvetica, 12)
+
+            # Definindo a segunda mensagem
+            text1 = "Essa é uma manifestação anônima?"
+            text1_width = c.stringWidth(text1, helvetica, 12)
+
+            # Calculando a posição para a segunda mensagem (logo abaixo da primeira)
+            y_position_text1 = 750 - 12 - 30  # 30 é o espaço entre as linhas
+
+            # Desenhando a segunda mensagem
+            x_position_text1 = (page_width - text1_width) / 2  # Centralizando horizontalmente
+            c.drawString(x_position_text1, y_position_text1, text1)
+
+            # Criando a caixa de seleção com o texto "Sim, é anônima."
+            box_width = 12
+            box_height = 12
+            box_x = (page_width / 2) - (box_width / 2) - 50  # Ajusta a posição da caixa
+            box_y = y_position_text1 - 12 - 10  # 15 é o espaço abaixo da mensagem
+
+            # Desenhando a caixa
+            c.rect(box_x, box_y, box_width, box_height)
+
+            # Texto da caixa
+            text2 = "Sim, é anônima."
+            text2_width = c.stringWidth(text2, helvetica, 12)
+            x_position_text2 = box_x + box_width + 5  # Espaço entre a caixa e o texto
+
+            # Desenhando o texto "Sim, é anônima."
+            c.drawString(x_position_text2, box_y + 2, text2)
+
+            y_atual = box_y
+
+            # Se a caixa estiver marcada, desenha um "X" dentro da caixa
+            caixa_marcada = True
+            if caixa_marcada:
+                c.line(box_x + 2, box_y + 2, box_x + box_width - 2, box_y + box_height - 2)
+                c.line(box_x + box_width - 2, box_y + 2, box_x + 2, box_y + box_height - 2)
+
+                # Quando a caixa estiver marcada, desenha "Informações pessoais" em negrito logo abaixo
+                text3 = "Informações pessoais"
+                text3_width = c.stringWidth(text3, helvetica_bold, 18)
+                x_position_text3 = (page_width - text3_width) / 2  # Centralizando horizontalmente
+
+                # Mudando a fonte para negrito
+                c.setFont(helvetica_bold, 18)
+                
+                # Calculando a posição y para o texto "Informações pessoais" (logo abaixo da caixa)
+                y_position_text3 = box_y - 18 - 15  # Ajustando o espaço abaixo da caixa
+
+                # Desenhando o texto em negrito
+                c.drawString(x_position_text3, y_position_text3, text3)
+
+                c.setFont(helvetica, 12)
+
+                # Campos adicionais logo abaixo de "Informações pessoais"
+                # campos = ["Nome:", "CPF:", "Data de nascimento:", "Sexo:", "Grau de inscrição:", "Email:", "Telefone:"]
+                campos = {
+                    'Nome:': postagem.usuario.first_name,
+                    'CPF:': postagem.usuario.cpf,
+                    'Data de nascimento:': postagem.usuario.data_nascimento,
+                    'Sexo:': postagem.usuario.sexo,
+                    'Grau de inscrição:': postagem.usuario.grau_ensino,
+                    'Email:': postagem.usuario.email
+                }
+                y_position_campos = y_position_text3 - 12 - 10  # Ajuste de espaço
+
+                for campo, valor in campos.items():
+                    c.drawString(100, y_position_campos, campo)  # Alinhando os campos à esquerda na página
+                    c.rect(212, y_position_campos - 5, 350, 12 + 5)  # Criando caixas para entrada de texto
+                    c.drawString(217, y_position_campos, str(valor))
+                    y_position_campos -= 12 + 10  # Diminuindo a posição para o próximo campo
+                    y_atual = y_position_campos
+
+            text4 = "Informações da manifestação"
+            text4_width = c.stringWidth(text4, helvetica_bold, 18)
+            x_position_text4 = (page_width - text4_width) / 2  # Centralizando horizontalmente
+
+            # Mudando a fonte para negrito
+            c.setFont(helvetica_bold, 18)
+            
+            # Calculando a posição y para o texto "Informações pessoais" (logo abaixo da caixa)
+            y_position_text4 = y_atual - 18 - 15  # Ajustando o espaço abaixo da caixa
+            y_atual = y_position_text4
+            # Desenhando o texto em negrito
+            c.drawString(x_position_text4, y_position_text4, text4)
+
+            c.setFont(helvetica, 12)
+
+            # Campos adicionais logo abaixo de "Informações pessoais"
+            campos = ["Destino:", "Tipo de assunto:", "Natureza:", "Mensagem:"]
+            campos = {
+                'Destino:': 'Controladoria e Ouvidoria Geral do Município',
+                'Tipo de assunto:': 'Outros',
+                'Natureza:': postagem.natureza,
+                'Mensagem:': postagem.descricao
+            }
+            y_position_campos = y_position_text4 - 12 - 10  # Ajuste de espaço
+
+            for campo, valor in campos.items():
+                c.drawString(100, y_position_campos, campo)  # Alinhando os campos à esquerda na página
+                c.rect(190, y_position_campos - 5, 350, 12 + 5)  # Criando caixas para entrada de texto
+                c.drawString(195, y_position_campos, str(valor)) 
+                y_position_campos -= 12 + 10  # Diminuindo a posição para o próximo campo
+                y_atual = y_position_campos
+            
+            try:
+                imagem = ImageReader(f'{settings.MEDIA_ROOT}/{postagem.imagem}')
+                c.drawImage(imagem, 190, y_atual-200, width=300, height=200)
+            except:
+                pass
+
+            c.showPage()
+            c.save()
+
+            postagem.path_pdf = '/media/'+url_pdf.split('media/')[1]
+
+            return Response(postagem.path_pdf, status=201)
+
+        except Postagem.DoesNotExist:
+            return Response({'detail': 'Postagem não encontrada'}, status=404)
     
 class FeedViewSet(viewsets.ViewSet):
 

@@ -77,6 +77,7 @@ class Postagem(models.Model):
     natureza = models.CharField(max_length=1, choices=NATUREZA_CHOICES)
     status = models.CharField(max_length=1, choices=STATUS_CHOICES, default='1')
     anonima = models.BooleanField(default=False)
+    path_pdf = models.CharField(max_length=250, null=True, blank=True)
 
     def __str__(self):
         return self.titulo

@@ -600,10 +600,25 @@ class PostagemViewSet(viewsets.ViewSet):
         except Postagem.DoesNotExist:
             return Response({'detail': 'Postagem não encontrada'}, status=404)
 
+    @swagger_auto_schema(
+        tags=['Postagem'],
+        operation_description='',
+        manual_parameters=[
+            openapi.Parameter(
+                name='Authorization',
+                in_=openapi.IN_HEADER,
+                type=openapi.TYPE_STRING,
+                description='Token de autenticação no formato `Token <token>`',
+            )
+        ],
+        responses={
+            201: 'Link do pdf'
+        }
+    )
     @action(detail=False, methods=['post'], url_path='(?P<id_postagem>[^/.]+)?/enviar-formulario')
     def enviar_formulario(self, request, id_postagem=None):
         try:
-            postagem = Postagem.objects.get(id=id_postagem)
+            postagem = Postagem.objects.get(id=id_postagem, usuario=request.user)
             url_pdf = f'{settings.MEDIA_ROOT}/formulario-{postagem.titulo[:20]}.pdf'
 
             c = canvas.Canvas(url_pdf, pagesize=letter)
@@ -657,8 +672,7 @@ class PostagemViewSet(viewsets.ViewSet):
             y_atual = box_y
 
             # Se a caixa estiver marcada, desenha um "X" dentro da caixa
-            caixa_marcada = True
-            if caixa_marcada:
+            if postagem.anonima:
                 c.line(box_x + 2, box_y + 2, box_x + box_width - 2, box_y + box_height - 2)
                 c.line(box_x + box_width - 2, box_y + 2, box_x + 2, box_y + box_height - 2)
 

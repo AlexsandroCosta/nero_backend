@@ -48,7 +48,8 @@ class PostagemSerializer(serializers.ModelSerializer):
             'votos',
             'geolocalizacao',
             'natureza',
-            'status'
+            'status',
+            'anonima'
         ]
 
         extra_kwargs = {

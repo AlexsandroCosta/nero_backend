@@ -364,7 +364,7 @@ class PostagemViewSet(viewsets.ViewSet):
 
                 return Response({'detail': 'Postagem atualizada com sucesso!'}, status=200)
 
-            return Response({serializer.erros}, status=400)
+            return Response(serializer.erros, status=400)
         except Postagem.DoesNotExist:
             return Response({'detail': 'Postagem não encontrada.'}, status=404)
         

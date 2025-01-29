@@ -762,10 +762,10 @@ class PostagemViewSet(viewsets.ViewSet):
             postagem.path_pdf = '/media/'+url_pdf.split('media/')[1]
             
             email = EmailMessage(
-                subject='Relatorio de reclamação de um cidadão',
-                body='resolva isso logo',  # Corpo do e-mail
+                subject='Relatório de reclamação de um cidadão',
+                body='Prezado(a) Senhor(a), gostaria de registrar uma reclamação sobre a iluminação pública da Rua [Nome da Rua], no bairro [Nome do Bairro], que encontra-se apagada há mais de uma semana. Esta situação tem causado insegurança aos moradores e dificultado o tráfego de pedestres e veículos, especialmente durante a noite. Solicito que sejam tomadas as devidas providências para o reparo imediato das lâmpadas danificadas e a restauração da segurança pública na área. Agradeço a atenção e espero um retorno breve sobre as ações que serão tomadas. Atenciosamente, João Silva Rua [Nome da Rua], nº [Número] [Telefone de Contato] [Seu E-mail]',  # Corpo do e-mail
                 from_email=settings.EMAIL_HOST_USER,
-                to=['alvaromaiachaves@gmail.com', 'allexmlk30@gmail.com'],
+                to=['alvaromaiachaves@gmail.com', 'andressa.ferreira@ifce.edu.br'],
             )
 
             with open(url_pdf, 'rb') as pdf_file:

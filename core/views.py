@@ -707,9 +707,6 @@ class PostagemViewSet(viewsets.ViewSet):
 
             # Se a caixa estiver marcada, desenha um "X" dentro da caixa
             if not postagem.anonima:
-                c.line(box_x + 2, box_y + 2, box_x + box_width - 2, box_y + box_height - 2)
-                c.line(box_x + box_width - 2, box_y + 2, box_x + 2, box_y + box_height - 2)
-
                 # Quando a caixa estiver marcada, desenha "Informações pessoais" em negrito logo abaixo
                 text3 = "Informações pessoais"
                 text3_width = c.stringWidth(text3, helvetica_bold, 18)
@@ -728,12 +725,24 @@ class PostagemViewSet(viewsets.ViewSet):
 
                 # Campos adicionais logo abaixo de "Informações pessoais"
                 # campos = ["Nome:", "CPF:", "Data de nascimento:", "Sexo:", "Grau de inscrição:", "Email:", "Telefone:"]
+
+                for sexo in postagem.usuario.SEXO_CHOICES:
+                    if postagem.usuario.sexo == sexo[0]:
+                        user_sexo = sexo[1]
+
+                for grau in postagem.usuario.GRAU_CHOICES:
+                    if postagem.usuario.grau_ensino == grau[0]:
+                        if len(grau[1]) > 60:
+                            user_grau_ensino = f'{grau[1][:60]}...'
+                        else:
+                            user_grau_ensino = grau[1]
+                
                 campos = {
                     'Nome:': postagem.usuario.first_name,
                     'CPF:': postagem.usuario.cpf,
                     'Data de nascimento:': postagem.usuario.data_nascimento,
-                    'Sexo:': postagem.usuario.sexo,
-                    'Grau de inscrição:': postagem.usuario.grau_ensino,
+                    'Sexo:': user_sexo,
+                    'Grau de inscrição:': user_grau_ensino.capitalize(),
                     'Email:': postagem.usuario.email
                 }
                 y_position_campos = y_position_text3 - 12 - 10  # Ajuste de espaço
@@ -744,7 +753,10 @@ class PostagemViewSet(viewsets.ViewSet):
                     c.drawString(217, y_position_campos, str(valor))
                     y_position_campos -= 12 + 10  # Diminuindo a posição para o próximo campo
                     y_atual = y_position_campos
-
+            else:
+                c.line(box_x + 2, box_y + 2, box_x + box_width - 2, box_y + box_height - 2)
+                c.line(box_x + box_width - 2, box_y + 2, box_x + 2, box_y + box_height - 2)
+                
             text4 = "Informações da manifestação"
             text4_width = c.stringWidth(text4, helvetica_bold, 18)
             x_position_text4 = (page_width - text4_width) / 2  # Centralizando horizontalmente
@@ -760,12 +772,16 @@ class PostagemViewSet(viewsets.ViewSet):
 
             c.setFont(helvetica, 12)
 
+            for natureza in postagem.NATUREZA_CHOICES:
+                if postagem.natureza == natureza[0]:
+                    postagem_natureza = natureza[1]
+            
             # Campos adicionais logo abaixo de "Informações pessoais"
             campos = ["Destino:", "Tipo de assunto:", "Natureza:", "Mensagem:"]
             campos = {
                 'Destino:': 'Controladoria e Ouvidoria Geral do Município',
                 'Tipo de assunto:': 'Outros',
-                'Natureza:': postagem.natureza,
+                'Natureza:': postagem_natureza.capitalize(),
                 'Mensagem:': postagem.descricao
             }
             y_position_campos = y_position_text4 - 12 - 10  # Ajuste de espaço
@@ -787,6 +803,7 @@ class PostagemViewSet(viewsets.ViewSet):
             c.save()
 
             postagem.path_pdf = '/media/'+url_pdf.split('media/')[1]
+            postagem.save()
             
             email = EmailMessage(
                 subject='Relatório de reclamação de um cidadão',

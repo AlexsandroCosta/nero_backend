@@ -347,6 +347,31 @@ class PostagemViewSet(viewsets.ViewSet):
                 description='Token de autenticação no formato `Token <token>`',
             ),
         ],
+        responses={
+            200: PostagemSerializer
+        }
+    )
+    def retrieve(self, request, pk=None):
+        try:
+            postagem = Postagem.objects.get(id=pk)
+
+            serializer = PostagemSerializer(postagem)
+
+            return Response(serializer.data, status=200)
+        except Postagem.DoesNotExist:
+            return Response({'detail': 'Postagem não encontrada'}, status=404)
+
+    @swagger_auto_schema(
+        tags=['Postagem'],
+        operation_description='',
+        manual_parameters=[
+            openapi.Parameter(
+                name='Authorization',
+                in_=openapi.IN_HEADER,
+                type=openapi.TYPE_STRING,
+                description='Token de autenticação no formato `Token <token>`',
+            ),
+        ],
         request_body=PostagemSerializer,
         responses={
             200: 'Postagem atualizada com sucesso!',

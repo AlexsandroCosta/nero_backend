@@ -736,15 +736,18 @@ class PostagemViewSet(viewsets.ViewSet):
                             user_grau_ensino = f'{grau[1][:60]}...'
                         else:
                             user_grau_ensino = grau[1]
+
+                ano, mes, dia = str(postagem.usuario.data_nascimento).split('-')
                 
                 campos = {
                     'Nome:': postagem.usuario.first_name,
                     'CPF:': postagem.usuario.cpf,
-                    'Data de nascimento:': postagem.usuario.data_nascimento,
+                    'Data de nascimento:': f'{dia}/{mes}/{ano}',
                     'Sexo:': user_sexo,
                     'Grau de inscrição:': user_grau_ensino.capitalize(),
                     'Email:': postagem.usuario.email
                 }
+                
                 y_position_campos = y_position_text3 - 12 - 10  # Ajuste de espaço
 
                 for campo, valor in campos.items():
@@ -817,6 +820,7 @@ class PostagemViewSet(viewsets.ViewSet):
 
             # Enviar o e-mail
             email.send(fail_silently=False)
+            
             return Response(postagem.path_pdf, status=201)
 
         except Postagem.DoesNotExist:

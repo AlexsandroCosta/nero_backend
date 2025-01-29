@@ -54,6 +54,8 @@ class PerfilSerializer(serializers.ModelSerializer):
         fields = ['foto_perfil']
 
 class PostagemSerializer(serializers.ModelSerializer):
+    usuario = serializers.SerializerMethodField()
+    
     class Meta:
         model = Postagem
         fields = [
@@ -75,6 +77,12 @@ class PostagemSerializer(serializers.ModelSerializer):
             'votos': {'read_only': True},
             'status': {'read_only': True}
         }
+
+    def get_usuario(self, obj):
+        if obj.anonima:
+            return None
+        
+        return obj.usuario.id
 
     def validate_imagem(self, value):
         if value:

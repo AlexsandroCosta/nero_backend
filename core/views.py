@@ -360,6 +360,8 @@ class PostagemViewSet(viewsets.ViewSet):
             return Response(serializer.data, status=200)
         except Postagem.DoesNotExist:
             return Response({'detail': 'Postagem não encontrada'}, status=404)
+        except Exception as e:
+            return Response({'error': str(e)}, status=400)
 
     @swagger_auto_schema(
         tags=['Postagem'],

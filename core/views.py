@@ -158,8 +158,8 @@ class UsuarioViewSet(viewsets.ViewSet):
                 serializer.save()
 
                 return Response('Usário atualizado com sucesso!', status=200)
-
-            return Response({'detail': request.data})
+            
+            return Response(serializer.errors, status=400)
 
         except Usuario.DoesNotExist:
             return Response({'detail': 'Usuário não encontrado.'}, status=404)

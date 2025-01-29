@@ -646,12 +646,17 @@ class PostagemViewSet(viewsets.ViewSet):
             )
         ],
         responses={
-            201: 'Link do pdf'
+            201: 'Relatório enviado com sucesso!'
         }
     )
     @action(detail=False, methods=['post'], url_path='(?P<id_postagem>[^/.]+)?/enviar-formulario')
     def enviar_formulario(self, request, id_postagem=None):
         try:
+            user = request.user
+
+            if not user.first_name or not user.cpf or not user.data_nascimento or not user.sexo or not user.grau_ensino or not user.email:
+                return Response({'detail': 'Complete seus dados pessoais para enviar formulario'}, status=400)
+            
             postagem = Postagem.objects.get(id=id_postagem, usuario=request.user)
             url_pdf = f'{settings.MEDIA_ROOT}/formulario-{postagem.titulo[:20]}.pdf'
 
@@ -826,7 +831,7 @@ class PostagemViewSet(viewsets.ViewSet):
             # Enviar o e-mail
             email.send(fail_silently=False)
             
-            return Response(postagem.path_pdf, status=201)
+            return Response({'detail': 'Relatório enviado com sucesso!'}, status=201)
 
         except Postagem.DoesNotExist:
             return Response({'detail': 'Postagem não encontrada'}, status=404)

@@ -2,6 +2,7 @@ from django.db import models
 from django.contrib.auth.models import AbstractUser
 from datetime import date
 from django.core.exceptions import ValidationError
+from django.core.validators import MinLengthValidator
 from django.conf import settings
 
 class Usuario(AbstractUser):
@@ -33,7 +34,7 @@ class Usuario(AbstractUser):
     ]
 
     sexo = models.CharField(max_length=1, choices=SEXO_CHOICES, null=True, blank=True)
-    cpf = models.CharField(max_length=11, unique=True, null=True, blank=True)
+    cpf = models.CharField(max_length=11, unique=True, null=True, blank=True, validators=[MinLengthValidator(11)])
     grau_ensino = models.CharField(max_length=2, choices=GRAU_CHOICES, null=True, blank=True)
     data_nascimento = models.DateField(null=True, blank=True)
     foto_perfil = models.ImageField(upload_to='perfil/', null=True, blank=True)

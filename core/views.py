@@ -74,6 +74,9 @@ class CadastroViewSet(viewsets.ViewSet):
         user_data = request.data
         user_data['username'] = user_data['username'].lower()
 
+        if len(user_data['password']) < 8:
+            return Response({'detail': 'A senha deve ter no mínimo 8 caracteres'}, status=400)
+
         serializer = UsuarioSerializer(data=user_data)
 
         if serializer.is_valid():
@@ -592,6 +595,9 @@ class PostagemViewSet(viewsets.ViewSet):
 
         except Postagem.DoesNotExist:
             return Response({'detail': 'Postagem não encontrada'}, status=404)
+
+    # @action(detail=False, methods=['post'], url_path='(?P<id_postagem>[^/.]+)?/enviar-formulario')
+    # def enviar_formulario(self, request, id_postagem)
     
 class FeedViewSet(viewsets.ViewSet):
 

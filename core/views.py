@@ -28,6 +28,7 @@ from reportlab.lib.pagesizes import letter
 from reportlab.lib.utils import ImageReader
 from reportlab.pdfgen import canvas
 from django.conf import settings
+from django.core.mail import EmailMessage
 
 class ModAuthToken(ObtainAuthToken):
 
@@ -187,6 +188,12 @@ class UsuarioViewSet(viewsets.ViewSet):
         
         if not foto_perfil:
             return Response({'detail': 'Imagem não enviada'}, status=400)
+        
+        extensoes_permitidas = ['.jpg', '.jpeg', '.png']
+        extensao = foto_perfil.name.split('.')[-1].lower()
+        
+        if f'.{extensao}' not in extensoes_permitidas:
+            return Response({'detail': 'Formato de imagem inválido. Apenas JPG, JPEG e PNG são permitidos.'}, status=400)
         
         user = request.user
 
@@ -357,6 +364,7 @@ class PostagemViewSet(viewsets.ViewSet):
 
                 return Response({'detail': 'Postagem atualizada com sucesso!'}, status=200)
 
+            return Response({serializer.erros}, status=400)
         except Postagem.DoesNotExist:
             return Response({'detail': 'Postagem não encontrada.'}, status=404)
         
@@ -672,7 +680,7 @@ class PostagemViewSet(viewsets.ViewSet):
             y_atual = box_y
 
             # Se a caixa estiver marcada, desenha um "X" dentro da caixa
-            if postagem.anonima:
+            if not postagem.anonima:
                 c.line(box_x + 2, box_y + 2, box_x + box_width - 2, box_y + box_height - 2)
                 c.line(box_x + box_width - 2, box_y + 2, box_x + 2, box_y + box_height - 2)
 
@@ -753,11 +761,25 @@ class PostagemViewSet(viewsets.ViewSet):
             c.save()
 
             postagem.path_pdf = '/media/'+url_pdf.split('media/')[1]
+            
+            email = EmailMessage(
+                subject='Relatorio de reclamação de um cidadão',
+                body='resolva isso logo',  # Corpo do e-mail
+                from_email=settings.EMAIL_HOST_USER,
+                to=['alvaromaiachaves@gmail.com', 'allexmlk30@gmail.com'],
+            )
 
+            with open(url_pdf, 'rb') as pdf_file:
+                email.attach('nome_do_arquivo.pdf', pdf_file.read(), 'application/pdf')
+
+            # Enviar o e-mail
+            email.send(fail_silently=False)
             return Response(postagem.path_pdf, status=201)
 
         except Postagem.DoesNotExist:
             return Response({'detail': 'Postagem não encontrada'}, status=404)
+        except Exception as e:
+            return Response({'erro': str(e)}, status=400)
     
 class FeedViewSet(viewsets.ViewSet):
 

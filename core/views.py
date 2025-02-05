@@ -337,7 +337,7 @@ class PostagemViewSet(viewsets.ViewSet):
                 for bairro in Bairro.objects.all():
                     poligono = Polygon(bairro.pontos)
 
-                    latitude, longitude = serializer.instance.geolocalizacao.split(',')
+                    latitude, longitude = serializer.instance.geolocalizacao.replace(' ', '').split(',')
 
                     ponto = Point(float(latitude), float(longitude))
 
@@ -402,7 +402,7 @@ class PostagemViewSet(viewsets.ViewSet):
             postagem = Postagem.objects.get(id=pk)
             
             if 'geolocalizacao' in request.data:
-                antiga_lat, antiga_longe = postagem.geolocalizacao.split(',')
+                antiga_lat, antiga_longe = postagem.geolocalizacao.replace(' ', '').split(',')
                 antigo_ponto = Point(float(antiga_lat), float(antiga_longe))
 
             serializer = PostagemSerializer(postagem, data=request.data, partial=True)
@@ -414,7 +414,7 @@ class PostagemViewSet(viewsets.ViewSet):
                     for bairro in Bairro.objects.all():
                         poligono = Polygon(bairro.pontos)
 
-                        latitude, longitude = serializer.instance.geolocalizacao.split(',')
+                        latitude, longitude = serializer.instance.geolocalizacao.replace(' ', '').split(',')
 
                         novo_ponto = Point(float(latitude), float(longitude))
 
@@ -456,7 +456,7 @@ class PostagemViewSet(viewsets.ViewSet):
             for bairro in Bairro.objects.all():
                 poligono = Polygon(bairro.pontos)
 
-                latitude, longitude = postagem.geolocalizacao.split(',')
+                latitude, longitude = postagem.geolocalizacao.replace(' ', '').split(',')
 
                 ponto = Point(float(latitude), float(longitude))
 

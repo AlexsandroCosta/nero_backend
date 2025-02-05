@@ -712,8 +712,7 @@ class PostagemViewSet(viewsets.ViewSet):
 
             # Se a caixa estiver marcada, desenha um "X" dentro da caixa
             if not postagem.anonima:
-                body_email = f"""Caro ouvidoria, somos parte da equipe nero e estamos enviando esta reclamação em formato de PDF, em nome do "usuario" que se identifica como {postagem.usuario.first_name}, e com o cpf {postagem.usuario.cpf}
-                att. Equipe Nero"""
+                body_email = f'Cara ouvidoria, somos parte da equipe nero e estamos enviando esta reclamação em formato de PDF, em nome do "usuario" que se identifica como {postagem.usuario.first_name}, e com o cpf {postagem.usuario.cpf}.'
                 # Quando a caixa estiver marcada, desenha "Informações pessoais" em negrito logo abaixo
                 text3 = "Informações pessoais"
                 text3_width = c.stringWidth(text3, helvetica_bold, 18)
@@ -764,8 +763,7 @@ class PostagemViewSet(viewsets.ViewSet):
                     y_position_campos -= 12 + 10  # Diminuindo a posição para o próximo campo
                     y_atual = y_position_campos
             else:
-                body_email = """Cara ouvidoria, somos parte da equipe nero e estamos enviando esta reclamação anônima em formato de PDF, para poder facilitar comunicação entre cidadãos e a ouvidoria da cidade.
-                att. Equipe Nero"""
+                body_email = 'Cara ouvidoria, somos parte da equipe nero e estamos enviando esta reclamação anônima em formato de PDF, para poder facilitar comunicação entre cidadãos e a ouvidoria da cidade.'
                 
                 c.line(box_x + 2, box_y + 2, box_x + box_width - 2, box_y + box_height - 2)
                 c.line(box_x + box_width - 2, box_y + 2, box_x + 2, box_y + box_height - 2)
@@ -818,15 +816,17 @@ class PostagemViewSet(viewsets.ViewSet):
             postagem.path_pdf = '/media/'+url_pdf.split('media/')[1]
             postagem.save()
             
+            body_email += f' A reclamação está relacionada à seguinte postagem: https://nero.lat/post/{postagem.id}.\n\nAtt., Equipe Nero'
+
             email = EmailMessage(
                 subject='Relatório de reclamação de um cidadão',
                 body=body_email,  # Corpo do e-mail
                 from_email=settings.EMAIL_HOST_USER,
-                to=['alyssonhenrique000@gmail.com', 'andressa.ferreira@ifce.edu.br'],
+                to=['andressa.ferreira@ifce.edu.br'],
             )
 
             with open(url_pdf, 'rb') as pdf_file:
-                email.attach('nome_do_arquivo.pdf', pdf_file.read(), 'application/pdf')
+                email.attach(f'relatorio_{postagem.titulo}.pdf', pdf_file.read(), 'application/pdf')
 
             # Enviar o e-mail
             email.send(fail_silently=False)

@@ -432,6 +432,7 @@ class PostagemViewSet(viewsets.ViewSet):
             return Response({'detail': 'Postagem não encontrada.'}, status=404)
         except Execption as e:
             return Response({'erro': str(e)}, status=400)
+            
     @swagger_auto_schema(
         tags=['Postagem'],
         operation_description='',

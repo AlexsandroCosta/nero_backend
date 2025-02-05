@@ -451,6 +451,18 @@ class PostagemViewSet(viewsets.ViewSet):
         try:
             postagem = Postagem.objects.get(id=pk, usuario=request.user)
 
+            for bairro in Bairro.objects.all():
+                poligono = Polygon(bairro.pontos)
+
+                latitude, longitude = postagem.geolocalizacao.split(',')
+
+                ponto = Point(float(latitude), float(longitude))
+
+                if poligono.contains(ponto):
+                    bairro.quantidade_reclamacoes-=1
+                    bairro.save()
+                    break
+            
             postagem.delete()
 
             return Response({'detail': 'Postagem deletada com sucesso!'}, status=200)

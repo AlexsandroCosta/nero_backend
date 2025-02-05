@@ -17,7 +17,7 @@ def povoar_db(sender, **kwargs):
         admin.set_password('admin')
         admin.save()
 
-    for postagem in Postagem.objects,filter(status='1'):
+    for postagem in Postagem.objects.filter(status='1'):
         for bairro in Bairro.objects.all():
             poligono = Polygon(bairro.pontos)
 

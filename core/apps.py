@@ -18,14 +18,15 @@ def povoar_db(sender, **kwargs):
         admin.save()
 
     for postagem in Postagem.objects.filter(status='1'):
-        for bairro in Bairro.objects.all():
-            poligono = Polygon(bairro.pontos)
-
-            latitude, longitude = postagem.geolocalizacao.split(',')
-
-            ponto = Point(float(latitude), float(longitude))
-
-            if poligono.contains(ponto):
-                bairro.quantidade_reclamacoes+=1
-                bairro.save()
-                break
+        if ',' in postagem.geolocalizacao:
+            for bairro in Bairro.objects.all():
+                poligono = Polygon(bairro.pontos)
+    
+                latitude, longitude = postagem.geolocalizacao.split(',')
+    
+                ponto = Point(float(latitude), float(longitude))
+    
+                if poligono.contains(ponto):
+                    bairro.quantidade_reclamacoes+=1
+                    bairro.save()
+                    break

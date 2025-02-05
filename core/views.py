@@ -29,6 +29,7 @@ from reportlab.lib.utils import ImageReader
 from reportlab.pdfgen import canvas
 from django.conf import settings
 from django.core.mail import EmailMessage
+from shapely.geometry import Point, Polygon
 
 class ModAuthToken(ObtainAuthToken):
 
@@ -323,19 +324,35 @@ class PostagemViewSet(viewsets.ViewSet):
         }
     )
     def create(self, request):
-        postagem_data = request.data
+        try:
+            postagem_data = request.data
 
-        serializer = PostagemSerializer(data=postagem_data)
+            serializer = PostagemSerializer(data=postagem_data)
 
-        if serializer.is_valid():
-            serializer.save()
-            serializer.instance.usuario = request.user
-            serializer.instance.save()
+            if serializer.is_valid():
+                serializer.save()
+                serializer.instance.usuario = request.user
+                serializer.instance.save()
 
-            return Response({'detail': 'Postagem criada com sucesso!'}, status=201)
+                for bairro in Bairro.objects.all():
+                    poligono = Polygon(bairro.pontos)
+
+                    latitude, longitude = serializer.instance.geolocalizacao.split(',')
+
+                    ponto = Point(float(latitude), float(longitude))
+
+                    if poligono.contains(ponto):
+                        bairro.quantidade_reclamacoes+=1
+                        bairro.save()
+                        break
+
+                return Response({'detail': 'Postagem criada com sucesso!'}, status=201)
+            
+            return Response(serializer.errors, status=400)
         
-        return Response(serializer.errors, status=400)
-    
+        except Exception as e:
+            return Response({'erro': str(e)}, status=400)
+
     @swagger_auto_schema(
         tags=['Postagem'],
         operation_description='',
@@ -384,10 +401,30 @@ class PostagemViewSet(viewsets.ViewSet):
         try:
             postagem = Postagem.objects.get(id=pk)
             
+            if 'geolocalizacao' in request.data:
+                antiga_lat, antiga_longe = postagem.geolocalizacao.split(',')
+                antigo_ponto = Point(float(antiga_lat), float(antiga_longe))
+
             serializer = PostagemSerializer(postagem, data=request.data, partial=True)
             
             if serializer.is_valid():
                 serializer.save()
+
+                if 'geolocalizacao' in request.data:
+                    for bairro in Bairro.objects.all():
+                        poligono = Polygon(bairro.pontos)
+
+                        latitude, longitude = serializer.instance.geolocalizacao.split(',')
+
+                        novo_ponto = Point(float(latitude), float(longitude))
+
+                        if poligono.contains(novo_ponto):
+                            bairro.quantidade_reclamacoes+=1
+                            bairro.save()
+
+                        if poligono.contains(antigo_ponto):
+                            bairro.quantidade_reclamacoes-=1
+                            bairro.save()
 
                 return Response({'detail': 'Postagem atualizada com sucesso!'}, status=200)
             return Response(serializer.errors, status=400)

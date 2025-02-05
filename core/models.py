@@ -100,3 +100,4 @@ class Bairro(models.Model):
     cidade = models.ForeignKey(Cidade, on_delete=models.CASCADE)
     nome = models.CharField(max_length=250)
     pontos = models.JSONField(default=list)
+    quantidade_reclamacoes = models.IntegerField(default=0)

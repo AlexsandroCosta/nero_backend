@@ -39,6 +39,7 @@ class Usuario(AbstractUser):
         code='invalid_cpf'
     )
 
+    email = models.EmailField(unique=True, blank=True)
     sexo = models.CharField(max_length=1, choices=SEXO_CHOICES, null=True, blank=True)
     cpf = models.CharField(max_length=11, unique=True, null=True, blank=True, validators=[cpf_validator])
     grau_ensino = models.CharField(max_length=2, choices=GRAU_CHOICES, null=True, blank=True)
@@ -96,8 +97,14 @@ class Cidade(models.Model):
     nome = models.CharField(max_length=250)
     pontos = models.JSONField(default=list)
 
+    def __str__(self):
+        return self.nome
+
 class Bairro(models.Model):
     cidade = models.ForeignKey(Cidade, on_delete=models.CASCADE)
     nome = models.CharField(max_length=250)
     pontos = models.JSONField(default=list)
     quantidade_reclamacoes = models.IntegerField(default=0)
+
+    def __str__(self):
+        return self.nome

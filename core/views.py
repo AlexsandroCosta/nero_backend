@@ -617,11 +617,11 @@ class PostagemViewSet(viewsets.ViewSet):
             elif int(avaliacao) > 5:
                 avaliacao = 5
 
-            obj = Avaliacao.objects.filter(usuario=request.user, postagem=postagem)
+            obj = Avaliacao.objects.filter(usuario=request.user, postagem=postagem).first()
 
-            if obj.exists():
-                obj.first().avaliacao = int(avaliacao)
-                obj.first().save()
+            if obj:
+                obj.avaliacao = int(avaliacao)
+                obj.save()
             else:
                 Avaliacao.objects.create(
                     usuario = request.user,
